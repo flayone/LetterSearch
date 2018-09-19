@@ -19,6 +19,8 @@ class MainActivity : AppCompatActivity(), LetterView.OnLettersListViewListener {
 
     private lateinit var adapter: CarListAdapter
     private lateinit var mList: List<LettersModel>
+    private var resultList: MutableList<LettersModel> = mutableListOf()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -38,20 +40,20 @@ class MainActivity : AppCompatActivity(), LetterView.OnLettersListViewListener {
                 if (charSequence!!.isNotEmpty()) {
                     searchResult(charSequence)
                 } else {
-                    adapter.updateData(mList)
+                    resultList = mList.toMutableList()
                 }
+                adapter.updateData(resultList)
             }
         }
     }
 
     private fun searchResult(c: CharSequence) {
         //先将输入的字符转为拼音或英文，然后用现有的全拼音
-        val resultList: MutableList<LettersModel> = mutableListOf()
+        resultList.clear()
         val pinyinFull = convertAll(c.toString())
         (0 until mList.size)
                 .filter { mList[it].pinyin.contains(pinyinFull) }
                 .mapTo(resultList) { mList[it] }
-        adapter.updateData(resultList)
     }
 
     /**
@@ -76,7 +78,7 @@ class MainActivity : AppCompatActivity(), LetterView.OnLettersListViewListener {
 
     override fun onLettersListener(s: String) {
         //对应的位置
-        val position = getFirstPosition(mList, s[0])
+        val position = getFirstPosition(resultList, s[0])
         //移动
         mListView.setSelection(position)
     }
